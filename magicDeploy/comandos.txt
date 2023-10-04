@@ -1,0 +1,31 @@
+Stop IIS
+
+C:\Windows\System32\inetsrv>net stop apppool /apppool.name:"DefaultAppPool"
+"DefaultAppPool" se detuvo correctamente
+
+C:\Windows\System32\inetsrv>net stop site /site.name:"Default Web Site"
+"Default Web Site" se detuvo correctamente
+
+Start IIS
+C:\Windows\System32\inetsrv>net start site /site.name:"Default Web Site"
+"Default Web Site" se inició correctamente.
+
+C:\Windows\System32\inetsrv>net start apppool /apppool.name:"DefaultAppPool"
+"DefaultAppPool" se inició correctamente.
+
+Publicar proyecto:
+
+dotnet publish -o C:\Users\pviroulaud\Documents\1_IntegracionContinua\publish1 -c Release C:\Users\pviroulaud\Documents\1_IntegracionContinua\testbuild1\test\test\test.csproj
+
+Compilar Proyecto
+
+dotnet build -c Release C:\Users\pviroulaud\Documents\1_IntegracionContinua\testbuild1\test\test\test.csproj
+
+Copiar:
+robocopy C:\Users\pviroulaud\Documents\1_IntegracionContinua\publish1 C:\inetpub\API /XF "nocopy.txt"
+
+Verificar SVN:
+svn st -u
+
+CheckOut SVN:
+svn checkout [-depth ARG] [--ignore-externals] [-r rev] URL RUTA

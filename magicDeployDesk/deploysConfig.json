@@ -1,0 +1,176 @@
+[
+  {
+    "nombre": "API test",
+    "horaEjecucionProgramada": "1995-04-07T01:00:00",
+    "configuraciones": [
+      {
+        "nombre": "URL Repositorio GitLab",
+        "valor": "https://gitlab-clusterdev01.addoc.com/investigaciondesarrollo/pruebasgit.git"
+      },
+      {
+        "nombre": "Usuario GitLab",
+        "valor": "PViroulaud"
+      },
+      {
+        "nombre": "Password GitLab",
+        "valor": "2letrasy6Numeros"
+      },
+      {
+        "nombre": "Branch para Deploy",
+        "valor": "QA"
+      },
+      {
+        "nombre": "HASH Utlimo commit",
+        "valor": ""
+      },
+      {
+        "nombre": "Carpeta de CheckOut",
+        "valor": "c:\\ADDOC\\test\\chkout"
+      },
+      {
+        "nombre": "Carpeta de BackUp",
+        "valor": "c:\\ADDOC\\test\\bkp"
+      },
+      {
+        "nombre": "Archivo .BAT de proceso de Publish",
+        "valor": "publicador.bat"
+      },
+      {
+        "nombre": "Carpeta de destino de resultado de proceso Publish",
+        "valor": "c:\\ADDOC\\test\\API1\\pub"
+      },
+      {
+        "nombre": "Carpeta de destino del Deploy",
+        "valor": "c:\\ADDOC\\test\\API1\\dep"
+      },
+      {
+        "nombre": "Sub Carpetas a ignorar",
+        "valor": ""
+      },
+      {
+        "nombre": "Archivos a ignorar",
+        "valor": "appsetting.json|web.config"
+      },
+      {
+        "nombre": "Application Site IIS",
+        "valor": "Default Web Site"
+      }
+    ]
+  },
+  {
+    "nombre": "API 1",
+    "horaEjecucionProgramada": "1995-04-07T01:00:00",
+    "configuraciones": [
+      {
+        "nombre": "URL Repositorio GitLab",
+        "valor": "https://gitlab-clusterdev01.addoc.com/investigaciondesarrollo/pruebasgit.git"
+      },
+      {
+        "nombre": "Usuario GitLab",
+        "valor": "PViroulaud"
+      },
+      {
+        "nombre": "Password GitLab",
+        "valor": "2letrasy6Numeros"
+      },
+      {
+        "nombre": "Branch para Deploy",
+        "valor": "QA"
+      },
+      {
+        "nombre": "HASH Utlimo commit",
+        "valor": ""
+      },
+      {
+        "nombre": "Carpeta de CheckOut",
+        "valor": "c:\\ADDOC\\test\\chkout"
+      },
+      {
+        "nombre": "Carpeta de BackUp",
+        "valor": "c:\\ADDOC\\test\\bkp"
+      },
+      {
+        "nombre": "Archivo .BAT de proceso de Publish",
+        "valor": "publicador.bat"
+      },
+      {
+        "nombre": "Carpeta de destino de resultado de proceso Publish",
+        "valor": "c:\\ADDOC\\test\\API1\\pub"
+      },
+      {
+        "nombre": "Carpeta de destino del Deploy",
+        "valor": "c:\\ADDOC\\test\\API1\\dep"
+      },
+      {
+        "nombre": "Sub Carpetas a ignorar",
+        "valor": ""
+      },
+      {
+        "nombre": "Archivos a ignorar",
+        "valor": "appsetting.json|web.config"
+      },
+      {
+        "nombre": "Application Site IIS",
+        "valor": "Default Web Site"
+      }
+    ]
+  },
+  {
+    "nombre": "API 2",
+    "horaEjecucionProgramada": "1995-04-07T02:00:00",
+    "configuraciones": [
+      {
+        "nombre": "URL Repositorio GitLab",
+        "valor": "https://gitlab-clusterdev01.addoc.com/investigaciondesarrollo/pruebasgit.git"
+      },
+      {
+        "nombre": "Usuario GitLab",
+        "valor": "PViroulaud"
+      },
+      {
+        "nombre": "Password GitLab",
+        "valor": "2letrasy6Numeros"
+      },
+      {
+        "nombre": "Branch para Deploy",
+        "valor": "QA"
+      },
+      {
+        "nombre": "HASH Utlimo commit",
+        "valor": ""
+      },
+      {
+        "nombre": "Carpeta de CheckOut",
+        "valor": "c:\\ADDOC\\test\\chkout"
+      },
+      {
+        "nombre": "Carpeta de BackUp",
+        "valor": "c:\\ADDOC\\test\\bkp"
+      },
+      {
+        "nombre": "Archivo .BAT de proceso de Publish",
+        "valor": "publicador.bat"
+      },
+      {
+        "nombre": "Carpeta de destino de resultado de proceso Publish",
+        "valor": "c:\\ADDOC\\test\\API2\\pub"
+      },
+      {
+        "nombre": "Carpeta de destino del Deploy",
+        "valor": "c:\\ADDOC\\test\\API2\\dep"
+      },
+      {
+        "nombre": "Sub Carpetas a ignorar",
+        "valor": ""
+      },
+      {
+        "nombre": "Archivos a ignorar",
+        "valor": "appsetting.json|web.config"
+      },
+      {
+        "nombre": "Application Site IIS",
+        "valor": "Default Web Site"
+      }
+    ]
+  }
+]
