@@ -12,7 +12,7 @@ namespace magicDeployDesk
 {
     public partial class campoValor : UserControl
     {
-
+        private bool modificado = false;
         public campoValor(string nombre, string valor,bool soloLectura)
         {
             InitializeComponent();
@@ -20,6 +20,7 @@ namespace magicDeployDesk
             txt_valorCampo.Text = valor;
             txt_valorCampo.Enabled = !soloLectura;
             this.Name = "campoValor_" + nombre;
+            modificado = false;
         }
         public campoValor(campoConfig campo, bool soloLectura)
         {
@@ -28,6 +29,20 @@ namespace magicDeployDesk
             txt_valorCampo.Text = campo.valor;
             txt_valorCampo.Enabled = !soloLectura;
             this.Name = "campoValor_" + campo.nombre;
+            modificado = false;
+        }
+
+        private void txt_valorCampo_TextChanged(object sender, EventArgs e)
+        {
+            modificado = true;
+        }
+        public void valorGuardado()
+        {
+            modificado = false;
+        }
+        public bool valorModificado { 
+            get
+            { return modificado; } 
         }
     }
 }

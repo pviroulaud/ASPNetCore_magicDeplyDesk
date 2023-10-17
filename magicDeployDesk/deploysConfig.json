@@ -2,6 +2,7 @@
   {
     "nombre": "API test",
     "horaEjecucionProgramada": "1995-04-07T01:00:00",
+    "guidProceso": "abc",
     "configuraciones": [
       {
         "nombre": "URL Repositorio GitLab",
@@ -37,11 +38,11 @@
       },
       {
         "nombre": "Carpeta de destino de resultado de proceso Publish",
-        "valor": "c:\\ADDOC\\test\\API1\\pub"
+        "valor": "c:\\ADDOC\\test\\APItest\\pub"
       },
       {
         "nombre": "Carpeta de destino del Deploy",
-        "valor": "c:\\ADDOC\\test\\API1\\dep"
+        "valor": "C:\\inetpub\\wwwroot\\APItest\\"
       },
       {
         "nombre": "Sub Carpetas a ignorar",
@@ -49,17 +50,18 @@
       },
       {
         "nombre": "Archivos a ignorar",
-        "valor": "appsetting.json|web.config"
+        "valor": "appsettings.json|web.config"
       },
       {
         "nombre": "Application Site IIS",
-        "valor": "Default Web Site"
+        "valor": "API_FechaHora"
       }
     ]
   },
   {
     "nombre": "API 1",
     "horaEjecucionProgramada": "1995-04-07T01:00:00",
+    "guidProceso": "def",
     "configuraciones": [
       {
         "nombre": "URL Repositorio GitLab",
@@ -118,6 +120,7 @@
   {
     "nombre": "API 2",
     "horaEjecucionProgramada": "1995-04-07T02:00:00",
+    "guidProceso": "ghi",
     "configuraciones": [
       {
         "nombre": "URL Repositorio GitLab",

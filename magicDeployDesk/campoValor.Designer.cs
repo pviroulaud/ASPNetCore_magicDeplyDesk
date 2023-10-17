@@ -69,6 +69,7 @@ namespace magicDeployDesk
             this.txt_valorCampo.Name = "txt_valorCampo";
             this.txt_valorCampo.Size = new System.Drawing.Size(430, 23);
             this.txt_valorCampo.TabIndex = 1;
+            this.txt_valorCampo.TextChanged += new System.EventHandler(this.txt_valorCampo_TextChanged);
             // 
             // campoValor
             // 

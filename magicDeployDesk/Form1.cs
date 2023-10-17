@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Microsoft.Web.Administration;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
@@ -15,6 +16,8 @@ namespace magicDeployDesk
 {
     public partial class Form1 : Form
     {
+        string archivoConfig = "";
+        string archivoConfigTemplate = "";
         Process p;
         List<configDeploy> cfgDep;
         string deploys = "[" +
@@ -23,6 +26,9 @@ namespace magicDeployDesk
                 "]";
 
         FileSystemWatcher fsw;
+        private int indiceLstBoxAnterior = 0;
+        private string[] GUIDsConfig;
+
         delegate void ActualizacionDeDatos();
 
         public Form1()
@@ -37,6 +43,9 @@ namespace magicDeployDesk
 
         private void Form1_Load(object sender, EventArgs e)
         {
+            archivoConfig = AppDomain.CurrentDomain.BaseDirectory + "\\" + "deploysConfig.json";
+            archivoConfigTemplate = AppDomain.CurrentDomain.BaseDirectory + "\\" + "deploysConfigTemplate.json";
+
             cargarConfig();
 
             CheckForIllegalCrossThreadCalls = false;
@@ -45,6 +54,7 @@ namespace magicDeployDesk
 
             fsw.Changed += Fsw_Changed;
 
+            
         }
 
 
@@ -52,8 +62,23 @@ namespace magicDeployDesk
         {
             lst_Deploy.Items.Clear();
 
-            StreamReader rd = new StreamReader("deploysConfig.json");
+            StreamReader rd;
+            if (!File.Exists(archivoConfig))
+            {
+                rd = new StreamReader(archivoConfigTemplate);
+
+                StreamWriter wr = new StreamWriter(archivoConfig, false);
+                wr.Write("[" + rd.ReadToEnd() + "]");
+                wr.Close();
+                wr.Dispose();
+
+
+            }
+            rd = new StreamReader(archivoConfig);
             deploys = rd.ReadToEnd();
+
+            
+            
 
             rd.Close();
             rd.Dispose();
@@ -79,30 +104,45 @@ namespace magicDeployDesk
         private void guardarConfig()
         {
             fsw.EnableRaisingEvents = false;
-            StreamWriter wr = new StreamWriter("deploysConfig.json", false);
+            if (File.Exists(archivoConfig)) File.Delete(archivoConfig);
+            StreamWriter wr = new StreamWriter(archivoConfig, false);
             wr.Write(deploys);
            
             wr.Close();
             wr.Dispose();
             fsw.EnableRaisingEvents = true;
+            foreach (var item in panelListaPropiedades.Controls)
+            {
+                campoValor cmp = (campoValor)item;
+                cmp.valorGuardado();
+            }
         }
         private void armarPanelDePropiedades()
         {
             deploys= deploys.Replace("'", "\"");
             cfgDep= System.Text.Json.JsonSerializer.Deserialize<List<configDeploy>>(deploys);
 
+            GUIDsConfig = new string[cfgDep.Count];
+            int n = 0;
             foreach (var item in cfgDep)
-            {
+            {                
                 lst_Deploy.Items.Add(item.nombre + $"({item.horaEjecucionProgramada.TimeOfDay.ToString()})");
+                GUIDsConfig[n] = item.guidProceso;
+                n++;
             }
 
             lst_Deploy.SelectedIndex = 0;
-
+            indiceLstBoxAnterior = lst_Deploy.SelectedIndex;
         }
 
         private void button1_Click(object sender, EventArgs e)
         {
-            int deployIdx = lst_Deploy.SelectedIndex;
+            guardar(lst_Deploy.SelectedIndex);
+        }
+
+        private void guardar(int indiceLstBox)
+        {
+            int deployIdx = indiceLstBox;
             configDeploy cDep = cfgDep[deployIdx];
 
             foreach (var item in cDep.configuraciones)
@@ -112,44 +152,87 @@ namespace magicDeployDesk
                 {
                     item.valor = ctrl.Controls["panelPropiedadDefault"].Controls["txt_valorCampo"].Text;
                     //ctrl.Controls["panelPropiedadDefault"].Controls["txt_valorCampo"].Text = "hola";
-                }                
+                }
             }
 
-            deploys=System.Text.Json.JsonSerializer.Serialize(cfgDep);
+            deploys = System.Text.Json.JsonSerializer.Serialize(cfgDep);
             guardarConfig();
         }
-
+        private bool cambiosGuardados()
+        {
+            foreach (var item in panelListaPropiedades.Controls)
+            {
+                campoValor cmp = (campoValor)item;
+                if (!cmp.Name.Contains("HASH"))
+                {
+                    if (cmp.valorModificado)
+                    {
+                        return false;
+                    }
+                }
+                
+            }
+            return true;
+           
+        }
         private void lst_Deploy_SelectedIndexChanged(object sender, EventArgs e)
         {
+            if (!cambiosGuardados())
+            {
+                var dialogo = MessageBox.Show(this, "Hay cambios sin guardar, ¿Desea guardarlos?.", "Configuracion del Deploy", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
+
+                if (dialogo == DialogResult.Yes)
+                {
+                    guardar(indiceLstBoxAnterior);
+                }
+            }
+
             panelListaPropiedades.Controls.Clear();
             panelListaPropiedades.RowCount = cfgDep[lst_Deploy.SelectedIndex].configuraciones.Count;
             int n = 0;
             foreach (var item in cfgDep[lst_Deploy.SelectedIndex].configuraciones)
             {
-                panelListaPropiedades.Controls.Add(new campoValor(item,item.nombre== "HASH Utlimo commit"), 0, n);
+                panelListaPropiedades.Controls.Add(new campoValor(item, item.nombre == "HASH Utlimo commit"), 0, n);
 
                 n++;
             }
-
+            indiceLstBoxAnterior = lst_Deploy.SelectedIndex;
         }
 
         private void button2_Click(object sender, EventArgs e)
         {
+            
             cargarConfig();
         }
 
         private void button3_Click(object sender, EventArgs e)
         {
+            button1.Enabled = false;
+            button2.Enabled = false;
+            button3.Enabled = false;
+            lst_Deploy.Enabled = false;
+            progressBar2.Value = 0;
+            progressBar2.Maximum = lst_Deploy.CheckedItems.Count;
+
             
+
             foreach (var item in lst_Deploy.CheckedItems)
             {
+
+                int idx=lst_Deploy.Items.IndexOf(item);
+                
                 configDeploy dep;
                 dep = (from cf in cfgDep where item.ToString() == cf.nombre + $"({cf.horaEjecucionProgramada.TimeOfDay.ToString()})" select cf).FirstOrDefault();
                 if (dep!=null)
                 {
-                    procesarDeploy(dep);
+                    procesarDeploy(dep, idx);
                 }
+                
             }
+            button1.Enabled = true;
+            button2.Enabled = true;
+            button3.Enabled = true;
+            lst_Deploy.Enabled = true;
         }
 
         private void habilitarSSL()
@@ -172,16 +255,20 @@ namespace magicDeployDesk
             p.StartInfo.Arguments = $"config --global http.sslVerify false";
             p.Start();
         }
-        private void procesarDeploy(configDeploy config)
+        private void procesarDeploy(configDeploy config,int indiceLstBox)
         {
+            //lst_Deploy.SelectedIndex = indiceLstBox;
+            progressBar2.PerformStep();
+
             rtbx_log.Clear();
+            progressBar2.Refresh();
             fsw.EnableRaisingEvents = false;
             progressBar1.Value = 0;
 
             string output = "";
 
-            rtbx_log.AppendText($"{DateTime.Now} >>> Iniciando Deploy de: {config.nombre}\n");
-
+            rtbx_log.AppendText($"{DateTime.Now} >>> Iniciando Deploy de: {config.nombre}\n");rtbx_log.ScrollToCaret();
+            
             campoConfig cv = (from v in config.configuraciones where v.nombre == "Branch para Deploy" select v).FirstOrDefault()
                 ?? new campoConfig() {nombre= "Branch para Deploy",valor="!" };
             string BRANCH = cv.valor;
@@ -244,7 +331,7 @@ namespace magicDeployDesk
 
                 REPO = REPO.Replace("https://", $"https://{USER}:{PASS}@");
 
-                rtbx_log.AppendText($"{DateTime.Now} >>> Obteniendo ultimo commit...\n");
+                rtbx_log.AppendText($"{DateTime.Now} >>> Obteniendo ultimo commit...\n");rtbx_log.ScrollToCaret();
                 p = new Process();
                 // Redirect the output stream of the child process.
                 p.StartInfo.UseShellExecute = false;
@@ -261,16 +348,17 @@ namespace magicDeployDesk
                 string[] outStr = output.Split('\t');
                 if (outStr.Length == 2)
                 {
-                    rtbx_log.AppendText($"{DateTime.Now} >>> Ultimo COMMIT sobre rama {BRANCH}: {outStr[0]}\n");
+                    rtbx_log.AppendText($"{DateTime.Now} >>> Ultimo COMMIT sobre rama {BRANCH}: {outStr[0]}\n");rtbx_log.ScrollToCaret();
 
                     if (hashCommit != outStr[0])
                     {
+                        hashCommit = outStr[0];
                         var dnfo = Directory.CreateDirectory(CARPETACHECKOUT + $"\\{formatearFecha(DateTime.Now)}_{BRANCH}_{outStr[0]}");
                         Directory.SetCurrentDirectory(dnfo.FullName);
 
                         string nombreCarpetaCheckout = dnfo.FullName+"\\"+REPO.Substring(REPO.LastIndexOf("/"), REPO.Length - REPO.LastIndexOf("/")).Replace("/", "").Replace(".git", "");
 
-                        rtbx_log.AppendText($"{DateTime.Now} >>> Realizando CHECKOUT de la rama {BRANCH} en la carpeta temporal {dnfo.FullName}\n");
+                        rtbx_log.AppendText($"{DateTime.Now} >>> Realizando CHECKOUT de la rama {BRANCH} en la carpeta temporal {dnfo.FullName}\n");rtbx_log.ScrollToCaret();
 
                         p = new Process();
                         p.StartInfo.UseShellExecute = false;
@@ -279,7 +367,7 @@ namespace magicDeployDesk
                         p.StartInfo.Arguments = $"clone --single-branch --branch {BRANCH} {REPO}";//git checkout -b <branch>
                         p.Start();
                         output = p.StandardOutput.ReadToEnd();
-                        rtbx_log.AppendText(output+"\n");
+                        rtbx_log.AppendText(output+"\n");rtbx_log.ScrollToCaret();
                         p.Close();
                         p.Dispose();
 
@@ -319,10 +407,21 @@ namespace magicDeployDesk
                             iniciarIIS(APPSITEIIS);
                             progressBar1.Value += 10; rtbx_log.Refresh();
                         }
+
+
+                        cv = (from v in config.configuraciones where v.nombre == "HASH Utlimo commit" select v).FirstOrDefault();
+                        cv.valor = hashCommit;
+
+                        cfgDep.Find(x => x.nombre == config.nombre).configuraciones.Find(y => y.nombre == "HASH Utlimo commit").valor = hashCommit;
+
+                        deploys = System.Text.Json.JsonSerializer.Serialize(cfgDep);
+                        guardarConfig();
+
+
                     }
                     else
                     {
-                        rtbx_log.AppendText($"{DateTime.Now} >>> El ultimo COMMIT sobre rama {BRANCH} ya fue procesado.\n");
+                        rtbx_log.AppendText($"{DateTime.Now} >>> El ultimo COMMIT sobre rama {BRANCH} ya fue procesado.\n");rtbx_log.ScrollToCaret();
                     }
                 }
 
@@ -342,9 +441,9 @@ namespace magicDeployDesk
         {
             try
             {
-                rtbx_log.AppendText($"{DateTime.Now} >>> Eliminando carpeta temporal {rutaPublish}\n");
+                rtbx_log.AppendText($"{DateTime.Now} >>> Eliminando carpeta temporal {rutaPublish}\n");rtbx_log.ScrollToCaret();
                 Directory.Delete(rutaPublish, true);
-                rtbx_log.AppendText($"{DateTime.Now} >>> Eliminando carpeta temporal {rutaCheckout}\n");
+                rtbx_log.AppendText($"{DateTime.Now} >>> Eliminando carpeta temporal {rutaCheckout}\n");rtbx_log.ScrollToCaret();
 
                 Directory.Delete(rutaCheckout, true);
             }
@@ -356,54 +455,87 @@ namespace magicDeployDesk
 
         private bool detenerIIS(string sitio)
         {
-            rtbx_log.AppendText($"{DateTime.Now} >>> Deteniendo IIS Sitio: {sitio}\n");
+            rtbx_log.AppendText($"{DateTime.Now} >>> Deteniendo IIS Sitio: {sitio}\n");rtbx_log.ScrollToCaret();
+            var serverManager = new ServerManager();
+            var appPool = serverManager.ApplicationPools.FirstOrDefault(ap => ap.Name.Equals(sitio));
+            if (appPool!=null)
+            {
+                appPool.Stop();
 
-            rtbx_log.AppendText($"{DateTime.Now} >>> Sitio {sitio} detenido.\n");
-            return true;
+                while (appPool.State != ObjectState.Stopped) ;
+
+                rtbx_log.AppendText($"{DateTime.Now} >>> Sitio {sitio} detenido.\n"); rtbx_log.ScrollToCaret();
+                return true;
+            }
+            else
+            {
+                return false;
+            }
         }
         private bool iniciarIIS(string sitio)
         {
-            rtbx_log.AppendText($"{DateTime.Now} >>> Iniciando IIS Sitio: {sitio}\n");
+            rtbx_log.AppendText($"{DateTime.Now} >>> Iniciando IIS Sitio: {sitio}\n");rtbx_log.ScrollToCaret();
+            var serverManager = new ServerManager();
+            var appPool = serverManager.ApplicationPools.FirstOrDefault(ap => ap.Name.Equals(sitio));
+            if (appPool != null)
+            {
+                appPool.Start();
+                while (appPool.State != ObjectState.Started) ;
+                //C:\Windows\System32\runas.exe /savecred /user:pablo_viroulaud@yahoo.com.ar C:\RepisitorioGitHUB\magicDeploy\magicDeploy\bin\Release\net5.0\magicDeploy.exe
+                rtbx_log.AppendText($"{DateTime.Now} >>> Sitio {sitio} iniciado.\n"); rtbx_log.ScrollToCaret();
+                return true;
+            }
+            else
+            {
+                return false;
+            }
+            
 
-            rtbx_log.AppendText($"{DateTime.Now} >>> Sitio {sitio} iniciado.\n");
-            return true;
         }
         private bool copiarPublicacion(string ruta,string rutaDestino,string archivosIgnorar,string carpetasIgnorar,bool eliminarContenido)
         {
             if (eliminarContenido)
             {
-                rtbx_log.AppendText($"{DateTime.Now} >>> Eliminando contenido de la carpeta {rutaDestino}.\n");
-                if (Directory.Exists(rutaDestino)) Directory.Delete(rutaDestino, true);
+                rtbx_log.AppendText($"{DateTime.Now} >>> Eliminando contenido de la carpeta {rutaDestino}. Archivos que no se eliminan: {archivosIgnorar}. Carpetas que no se eliminan: {carpetasIgnorar}.\n");rtbx_log.ScrollToCaret();
+
+                if (Directory.Exists(rutaDestino))
+                {
+                    DirectoryDelete(rutaDestino, archivosIgnorar, carpetasIgnorar);
+                }
+                
             }
             if (!Directory.Exists(rutaDestino)) Directory.CreateDirectory(rutaDestino);
 
-            rtbx_log.AppendText($"{DateTime.Now} >>> Iniciando la copia de la publicacion...\n");
+            rtbx_log.AppendText($"{DateTime.Now} >>> Iniciando la copia de la publicacion...\n");rtbx_log.ScrollToCaret();
             //robocopy C:\Users\pviroulaud\Documents\1_IntegracionContinua\publish1 C:\inetpub\API /XF "nocopy.txt" "nocopy2.txt"
             DirectoryCopy(ruta, rutaDestino, true, archivosIgnorar, carpetasIgnorar);
-            rtbx_log.AppendText($"{DateTime.Now} >>> Copia de publicacion finalizada ({rutaDestino}).\n");
+            rtbx_log.AppendText($"{DateTime.Now} >>> Copia de publicacion finalizada ({rutaDestino}).\n");rtbx_log.ScrollToCaret();
             return true;
             
         }
 
         private bool crearPublish(string carpetaCheckout,string archivoBAT,string rutaDestino)
         {
-            if (Directory.Exists(rutaDestino)) Directory.Delete(rutaDestino, true);
-            Directory.CreateDirectory(rutaDestino);
+            
 
-            rtbx_log.AppendText($"{DateTime.Now} >>> Iniciando publicacion. Ejecutando {archivoBAT}\n");
+            if (!Directory.Exists(rutaDestino)) Directory.CreateDirectory(rutaDestino);
+
+
+            rtbx_log.AppendText($"{DateTime.Now} >>> Iniciando publicacion. Ejecutando {archivoBAT}\n");rtbx_log.ScrollToCaret();
 
             p = new Process();
+            
             p.StartInfo.UseShellExecute = false;
             p.StartInfo.RedirectStandardOutput = true;
-            p.StartInfo.FileName = carpetaCheckout+"\\"+ archivoBAT;
-            p.StartInfo.Arguments = $"{rutaDestino}";
+            p.StartInfo.FileName = carpetaCheckout +"\\"+ archivoBAT;
+            p.StartInfo.Arguments = $"{rutaDestino} {carpetaCheckout}";
             p.Start();
             string output = p.StandardOutput.ReadToEnd();
-            rtbx_log.AppendText(output + "\n");
+            rtbx_log.AppendText(output + "\n");rtbx_log.ScrollToCaret();
             p.Close();
             p.Dispose();
            
-            rtbx_log.AppendText($"{DateTime.Now} >>> Publicacion finalizada. Publicada en {rutaDestino}\n");
+            rtbx_log.AppendText($"{DateTime.Now} >>> Publicacion finalizada. Publicada en {rutaDestino}\n");rtbx_log.ScrollToCaret();
             return true;
 
             /*
@@ -445,7 +577,7 @@ dotnet publish -o %carpetaDePublicacion%\Firmas\GestionAPI -c Release ContractMa
 
         private bool backUpSistemaActual(string ruta,string rutaDestino)
         {
-            rtbx_log.AppendText($"{DateTime.Now} >>> Creando BackUp del sistema ({ruta})\n");
+            rtbx_log.AppendText($"{DateTime.Now} >>> Creando BackUp del sistema ({ruta})\n");rtbx_log.ScrollToCaret();
             if (!Directory.Exists(rutaDestino)) Directory.CreateDirectory(rutaDestino);
             if (Directory.Exists(ruta))
             {
@@ -453,7 +585,7 @@ dotnet publish -o %carpetaDePublicacion%\Firmas\GestionAPI -c Release ContractMa
             }
             
 
-            rtbx_log.AppendText($"{DateTime.Now} >>> BackUp del sistema guardado en {rutaDestino}\n");
+            rtbx_log.AppendText($"{DateTime.Now} >>> BackUp del sistema guardado en {rutaDestino}\n");rtbx_log.ScrollToCaret();
             return true;
         }
         private string formatearFecha(DateTime fecha)
@@ -472,7 +604,62 @@ dotnet publish -o %carpetaDePublicacion%\Firmas\GestionAPI -c Release ContractMa
             ret += fecha.Second.ToString();
             return ret;
         }
-        private static void DirectoryCopy(string sourceDirName, string destDirName,
+        private void DirectoryDelete(string DirName, string ignoreFiles, string ignoreSubDirectories)
+        {
+            DirectoryContentDelete(DirName, ignoreFiles, ignoreSubDirectories);
+
+            if (Directory.Exists(DirName))
+            {
+                DirectoryInfo dir = new DirectoryInfo(DirName);
+                if (dir.EnumerateFiles().Count() == 0 && dir.EnumerateDirectories().Count() == 0)
+                {
+                    Directory.Delete(dir.FullName);
+                }
+            }
+            
+        }
+        private void DirectoryContentDelete(string sourceDirName, string ignoreFiles, string ignoreSubDirectories)
+        {
+            string[] ignoredFiles = ignoreFiles.Split("|", StringSplitOptions.RemoveEmptyEntries);
+            string[] ignoredDirectories = ignoreSubDirectories.Split("|", StringSplitOptions.RemoveEmptyEntries);
+            // Get the subdirectories for the specified directory.
+            DirectoryInfo dir = new DirectoryInfo(sourceDirName);
+
+            if (!dir.Exists)
+            {
+                return;
+            }
+
+            DirectoryInfo[] dirs = dir.GetDirectories();
+
+            // Get the files in the directory and copy them to the new location.
+            FileInfo[] files = dir.GetFiles();
+            foreach (FileInfo file in files)
+            {
+                if (!ignoredFiles.Contains(file.Name))
+                {
+                    File.Delete(file.FullName);                    
+                }
+
+            }
+
+            foreach (DirectoryInfo subdir in dirs)
+            {
+                if (!ignoredDirectories.Contains(subdir.Name))
+                {
+                    DirectoryContentDelete(subdir.FullName, ignoreFiles, ignoreSubDirectories);
+                    if (subdir.EnumerateFiles().Count()==0 && subdir.EnumerateDirectories().Count()==0)
+                    {
+                        Directory.Delete(subdir.FullName);
+                    }
+                }
+
+            }
+            
+        }
+
+
+        private void DirectoryCopy(string sourceDirName, string destDirName,
                                     bool copySubDirs,string ignoreFiles,string ignoreSubDirectories)
         {
             string[] ignoredFiles = ignoreFiles.Split("|", StringSplitOptions.RemoveEmptyEntries);
@@ -482,9 +669,7 @@ dotnet publish -o %carpetaDePublicacion%\Firmas\GestionAPI -c Release ContractMa
 
             if (!dir.Exists)
             {
-                throw new DirectoryNotFoundException(
-                    "Source directory does not exist or could not be found: "
-                    + sourceDirName);
+                return;
             }
 
             DirectoryInfo[] dirs = dir.GetDirectories();
@@ -524,6 +709,88 @@ dotnet publish -o %carpetaDePublicacion%\Firmas\GestionAPI -c Release ContractMa
         private void rtbx_log_TextChanged(object sender, EventArgs e)
         {
 
+        }
+
+        private void Form1_FormClosing(object sender, FormClosingEventArgs e)
+        {
+            if (e.CloseReason == CloseReason.WindowsShutDown) return;
+
+            var dialogo = MessageBox.Show(this, "Si presiona NO la aplicación quedará ejecutandose en segundo plano.", "¿Cerrar MagicDeploy?", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
+
+            if (dialogo == DialogResult.Yes)
+            {
+                return;
+            }
+            else
+            {
+                if (e.CloseReason == CloseReason.UserClosing)
+                {
+                    e.Cancel = true;
+                    this.Visible = false;
+                    notifyIcon1.ShowBalloonTip(1000, "MagicDeploy", "La aplicacion se esta ejecutando en segundo plano", ToolTipIcon.Info);
+                }
+            }
+            //In case windows is trying to shut down, don't hold the process up
+            
+
+            
+
+            //if (this.DialogResult == DialogResult.Cancel)
+            //{
+            //    // Assume that X has been clicked and act accordingly.
+            //    // Confirm user wants to close
+            //    switch (MessageBox.Show(this, "Are you sure?", "Do you still want ... ?", MessageBoxButtons.YesNo, MessageBoxIcon.Question))
+            //    {
+            //        //Stay on this form
+            //        case DialogResult.No:
+            //            e.Cancel = true;
+            //            break;
+            //        default:
+            //            break;
+            //    }
+            //}
+        }
+
+        private void notifyIcon1_DoubleClick(object sender, EventArgs e)
+        {
+            this.Visible = true;
+        }
+
+        private void nuevaTareaToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            StreamReader rd = new StreamReader(archivoConfigTemplate);
+            string ncfg = rd.ReadToEnd();
+            rd.Close();
+            rd.Dispose();
+
+            configDeploy nuevoCf = System.Text.Json.JsonSerializer.Deserialize<configDeploy>(ncfg);
+            nuevoCf.guidProceso = Guid.NewGuid().ToString();
+            cfgDep.Add(nuevoCf);
+
+            deploys = System.Text.Json.JsonSerializer.Serialize(cfgDep);
+            guardarConfig();
+
+            cargarConfig();
+        }
+
+        private void editarTareaToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            if (lst_Deploy.SelectedIndex >= 0)
+            {
+                configDeploy editCf = cfgDep.Find(x => x.guidProceso == GUIDsConfig[lst_Deploy.SelectedIndex]);
+                string nombreProceso = editCf.nombre;
+                string horaEjecucion = editCf.horaEjecucionProgramada.ToString();
+                
+            }
+        }
+
+        private void eliminarToolStripMenuItem_Click(object sender, EventArgs e)
+        {            
+            cfgDep.Remove(cfgDep.Find(x => x.guidProceso == GUIDsConfig[lst_Deploy.SelectedIndex]));
+            deploys = System.Text.Json.JsonSerializer.Serialize(cfgDep);
+            guardarConfig();
+
+            cargarConfig();
         }
     }
 }

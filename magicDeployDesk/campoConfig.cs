@@ -15,6 +15,7 @@ namespace magicDeployDesk
     {
         public DateTime horaEjecucionProgramada { get; set; }
         public string nombre { get; set; }
+        public string guidProceso { get; set; }
         public List<campoConfig> configuraciones { get; set; }
     }
 }

@@ -7,8 +7,15 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <None Update="deploysConfig.json">
+    <PackageReference Include="Microsoft.Web.Administration" Version="11.1.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Update="deploysConfigTemplate.json">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="deploysConfig.json">
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
     </None>
   </ItemGroup>
 

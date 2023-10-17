@@ -1,0 +1,59 @@
+{
+  "nombre": "MagicDeploy",
+  "horaEjecucionProgramada": "1995-04-07T01:00:00",
+  "guidProceso": "abc",
+  "configuraciones": [
+    {
+      "nombre": "URL Repositorio GitLab",
+      "valor": ""
+    },
+    {
+      "nombre": "Usuario GitLab",
+      "valor": ""
+    },
+    {
+      "nombre": "Password GitLab",
+      "valor": ""
+    },
+    {
+      "nombre": "Branch para Deploy",
+      "valor": ""
+    },
+    {
+      "nombre": "HASH Utlimo commit",
+      "valor": ""
+    },
+    {
+      "nombre": "Carpeta de CheckOut",
+      "valor": "c:\\MagicDeploy\\chkout"
+    },
+    {
+      "nombre": "Carpeta de BackUp",
+      "valor": "c:\\MagicDeploy\\bkp"
+    },
+    {
+      "nombre": "Archivo .BAT de proceso de Publish",
+      "valor": ""
+    },
+    {
+      "nombre": "Carpeta de destino de resultado de proceso Publish",
+      "valor": "c:\\MagicDeploy\\pub"
+    },
+    {
+      "nombre": "Carpeta de destino del Deploy",
+      "valor": "C:\\MagicDeploy\\dep"
+    },
+    {
+      "nombre": "Sub Carpetas a ignorar",
+      "valor": ""
+    },
+    {
+      "nombre": "Archivos a ignorar",
+      "valor": ""
+    },
+    {
+      "nombre": "Application Site IIS",
+      "valor": ""
+    }
+  ]
+}
