@@ -71,7 +71,6 @@ namespace magicDeployDesk
             // 
             // splitContainer2
             // 
-            this.splitContainer2.Cursor = System.Windows.Forms.Cursors.Default;
             this.splitContainer2.Dock = System.Windows.Forms.DockStyle.Fill;
             this.splitContainer2.Location = new System.Drawing.Point(193, 795);
             this.splitContainer2.Name = "splitContainer2";
@@ -144,7 +143,6 @@ namespace magicDeployDesk
             // 
             // splitContainer1
             // 
-            this.splitContainer1.Cursor = System.Windows.Forms.Cursors.Default;
             this.splitContainer1.Dock = System.Windows.Forms.DockStyle.Fill;
             this.splitContainer1.Location = new System.Drawing.Point(193, 3);
             this.splitContainer1.Name = "splitContainer1";
@@ -166,7 +164,6 @@ namespace magicDeployDesk
             this.panelPropiedades.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 50F));
             this.panelPropiedades.Controls.Add(this.tableLayoutPanel4, 0, 1);
             this.panelPropiedades.Controls.Add(this.panelListaPropiedades, 0, 0);
-            this.panelPropiedades.Cursor = System.Windows.Forms.Cursors.Default;
             this.panelPropiedades.Dock = System.Windows.Forms.DockStyle.Fill;
             this.panelPropiedades.Location = new System.Drawing.Point(0, 0);
             this.panelPropiedades.Name = "panelPropiedades";
@@ -183,7 +180,6 @@ namespace magicDeployDesk
             this.tableLayoutPanel4.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 50F));
             this.tableLayoutPanel4.Controls.Add(this.button2, 1, 0);
             this.tableLayoutPanel4.Controls.Add(this.button1, 0, 0);
-            this.tableLayoutPanel4.Cursor = System.Windows.Forms.Cursors.Default;
             this.tableLayoutPanel4.Dock = System.Windows.Forms.DockStyle.Fill;
             this.tableLayoutPanel4.Location = new System.Drawing.Point(3, 738);
             this.tableLayoutPanel4.Name = "tableLayoutPanel4";
@@ -194,7 +190,6 @@ namespace magicDeployDesk
             // 
             // button2
             // 
-            this.button2.Cursor = System.Windows.Forms.Cursors.Arrow;
             this.button2.Dock = System.Windows.Forms.DockStyle.Fill;
             this.button2.Location = new System.Drawing.Point(188, 5);
             this.button2.Margin = new System.Windows.Forms.Padding(5);
@@ -208,7 +203,6 @@ namespace magicDeployDesk
             // 
             // button1
             // 
-            this.button1.Cursor = System.Windows.Forms.Cursors.Arrow;
             this.button1.Dock = System.Windows.Forms.DockStyle.Fill;
             this.button1.Location = new System.Drawing.Point(5, 5);
             this.button1.Margin = new System.Windows.Forms.Padding(5);
@@ -225,7 +219,6 @@ namespace magicDeployDesk
             this.panelListaPropiedades.AutoScroll = true;
             this.panelListaPropiedades.ColumnCount = 1;
             this.panelListaPropiedades.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 100F));
-            this.panelListaPropiedades.Cursor = System.Windows.Forms.Cursors.Arrow;
             this.panelListaPropiedades.Dock = System.Windows.Forms.DockStyle.Fill;
             this.panelListaPropiedades.Location = new System.Drawing.Point(3, 3);
             this.panelListaPropiedades.Name = "panelListaPropiedades";
@@ -237,7 +230,6 @@ namespace magicDeployDesk
             // rtbx_log
             // 
             this.rtbx_log.BackColor = System.Drawing.Color.Black;
-            this.rtbx_log.Cursor = System.Windows.Forms.Cursors.Default;
             this.rtbx_log.Dock = System.Windows.Forms.DockStyle.Fill;
             this.rtbx_log.Font = new System.Drawing.Font("Consolas", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
             this.rtbx_log.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(0)))), ((int)(((byte)(192)))), ((int)(((byte)(0)))));
@@ -256,7 +248,6 @@ namespace magicDeployDesk
             this.tableLayoutPanel1.Controls.Add(this.tableLayoutPanel2, 0, 0);
             this.tableLayoutPanel1.Controls.Add(this.splitContainer1, 1, 0);
             this.tableLayoutPanel1.Controls.Add(this.splitContainer2, 1, 1);
-            this.tableLayoutPanel1.Cursor = System.Windows.Forms.Cursors.Default;
             this.tableLayoutPanel1.Dock = System.Windows.Forms.DockStyle.Fill;
             this.tableLayoutPanel1.Location = new System.Drawing.Point(0, 0);
             this.tableLayoutPanel1.Name = "tableLayoutPanel1";
@@ -272,7 +263,6 @@ namespace magicDeployDesk
             this.tableLayoutPanel2.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 50F));
             this.tableLayoutPanel2.Controls.Add(this.label1, 0, 0);
             this.tableLayoutPanel2.Controls.Add(this.lst_Deploy, 0, 1);
-            this.tableLayoutPanel2.Cursor = System.Windows.Forms.Cursors.Default;
             this.tableLayoutPanel2.Dock = System.Windows.Forms.DockStyle.Fill;
             this.tableLayoutPanel2.Location = new System.Drawing.Point(3, 3);
             this.tableLayoutPanel2.Name = "tableLayoutPanel2";
@@ -284,7 +274,6 @@ namespace magicDeployDesk
             // 
             // label1
             // 
-            this.label1.Cursor = System.Windows.Forms.Cursors.Default;
             this.label1.Dock = System.Windows.Forms.DockStyle.Fill;
             this.label1.Location = new System.Drawing.Point(3, 0);
             this.label1.Name = "label1";
@@ -356,6 +345,7 @@ namespace magicDeployDesk
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(1415, 864);
             this.Controls.Add(this.tableLayoutPanel1);
+            this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.Name = "Form1";
             this.Text = "MagicDeploy";
             this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.Form1_FormClosing);

@@ -779,8 +779,30 @@ dotnet publish -o %carpetaDePublicacion%\Firmas\GestionAPI -c Release ContractMa
             {
                 configDeploy editCf = cfgDep.Find(x => x.guidProceso == GUIDsConfig[lst_Deploy.SelectedIndex]);
                 string nombreProceso = editCf.nombre;
-                string horaEjecucion = editCf.horaEjecucionProgramada.ToString();
-                
+                string horaEjecucion = editCf.horaEjecucionProgramada.ToString().Split(new char[] { ' ' }, StringSplitOptions.RemoveEmptyEntries)[1];
+
+
+                var dlgRes=InputBox("titulo", "Nombre del proceso",ref nombreProceso, "Hora de ejecucion",ref horaEjecucion);
+                if (dlgRes== DialogResult.OK)
+                {
+                    if (nombreProceso.Length > 0 && validarFormatoHora(horaEjecucion) )
+                    {
+                        editCf.nombre = nombreProceso;
+                        editCf.horaEjecucionProgramada = Convert.ToDateTime(editCf.horaEjecucionProgramada.ToString().Split(new char[] { ' ' }, StringSplitOptions.RemoveEmptyEntries)[0] + " " + horaEjecucion);
+                        deploys = System.Text.Json.JsonSerializer.Serialize(cfgDep);
+                        guardarConfig();
+
+                        cargarConfig();
+                    }
+                    else
+                    {
+                        cargarConfig();
+                    }
+                }
+                else
+                {
+                    cargarConfig();
+                }
             }
         }
 
@@ -791,6 +813,87 @@ dotnet publish -o %carpetaDePublicacion%\Firmas\GestionAPI -c Release ContractMa
             guardarConfig();
 
             cargarConfig();
+        }
+
+        private bool validarFormatoHora(string HHmmss)
+        {
+            bool ret = false;
+            try
+            {
+                string[] tme = HHmmss.Split(new char[] { ':' }, StringSplitOptions.RemoveEmptyEntries);
+                if (tme.Length == 3)
+                {
+                    if (Convert.ToInt32(tme[0]) >= 0 && Convert.ToInt32(tme[0]) <= 23 &&
+                        Convert.ToInt32(tme[1]) >= 0 && Convert.ToInt32(tme[1]) <= 59 &&
+                        Convert.ToInt32(tme[2]) >= 0 && Convert.ToInt32(tme[2]) <= 59)
+                    {
+                        return true;
+                    }
+                }
+                return ret;
+            }
+            catch (Exception)
+            {
+                return ret;
+            }
+            
+        }
+       
+
+        public static DialogResult InputBox(string title, string lbl1_text, ref string valueTXT1, string lbl2_text, ref string valueTXT2, bool isDigit = false)
+        {
+            Form form = new Form();
+            Label label = new Label();
+            TextBox textBox = new TextBox();
+            Label label2 = new Label();
+            TextBox textBox2 = new TextBox();
+
+            textBox2.Width = 1000;
+            textBox.Width = 1000;
+            Button buttonOk = new Button();
+            Button buttonCancel = new Button();
+
+            form.Text = title;
+            label.Text = lbl1_text;
+            textBox.Text = valueTXT1;
+            label2.Text = lbl2_text;
+            textBox2.Text = valueTXT2;
+
+            buttonOk.Text = "OK";
+            buttonCancel.Text = "Cancel";
+            buttonOk.DialogResult = DialogResult.OK;
+            buttonCancel.DialogResult = DialogResult.Cancel;
+
+            label.SetBounds(9, 20, 372, 13);
+            textBox.SetBounds(12, 36, 372, 20);
+            label2.SetBounds(9, 60, 372, 13);
+            textBox2.SetBounds(12, 81, 372, 20);
+
+            buttonOk.SetBounds(228, 115, 75, 23);
+            buttonCancel.SetBounds(309, 115, 75, 23);
+
+            label.AutoSize = true;
+            textBox.Anchor = textBox.Anchor | AnchorStyles.Right;
+            label2.AutoSize = true;
+            textBox2.Anchor = textBox2.Anchor | AnchorStyles.Right;
+
+            buttonOk.Anchor = AnchorStyles.Bottom | AnchorStyles.Right;
+            buttonCancel.Anchor = AnchorStyles.Bottom | AnchorStyles.Right;
+
+            form.ClientSize = new Size(396, 150);
+            form.Controls.AddRange(new Control[] { label, textBox, label2, textBox2, buttonOk, buttonCancel });
+            form.ClientSize = new Size(Math.Max(300, label.Right + 10), form.ClientSize.Height);
+            form.FormBorderStyle = FormBorderStyle.FixedDialog;
+            form.StartPosition = FormStartPosition.CenterScreen;
+            form.MinimizeBox = false;
+            form.MaximizeBox = false;
+            form.AcceptButton = buttonOk;
+            form.CancelButton = buttonCancel;
+
+            DialogResult dialogResult = form.ShowDialog();
+            valueTXT1 = textBox.Text;
+            valueTXT2 = textBox2.Text;
+            return dialogResult;
         }
     }
 }
